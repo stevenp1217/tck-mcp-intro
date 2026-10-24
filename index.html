@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>tc-knowledge, Teamcenter 문서 MCP 서버</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234281ec'/%3E%3Cg transform='translate%286 6%29 scale%28.8333%29' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 7v14'/%3E%3Cpath d='M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+@font-face{font-family:"Geist";src:url("fonts/Geist-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url("fonts/GeistMono-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Pretendard";src:url("fonts/PretendardVariable.woff2") format("woff2");font-weight:45 920;font-display:swap}
+:root{
+  --bg:#0a0a0a;--fg:#ededed;--fg2:#a3a3a3;--fg3:#8c8c8c;--line:#222;--line2:#2f2f2f;
+  --panel:#111214;--chip:#1a1c20;--accent:#6aa5ff;--accent-ui:#4281ec;
+  --sans:"Geist","Pretendard",system-ui,sans-serif;--mono:"Geist Mono","Pretendard",ui-monospace,monospace;
+  --wrap:1200px;--pad:clamp(20px,4vw,40px)
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.7 var(--sans);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+code,pre{font-family:var(--mono)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 22px;border-radius:8px;border:1px solid transparent;font:600 16px/1 var(--sans);text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#0a0a0a}
+.btn-primary:hover{background:#8db9ff}
+.btn-ghost{border-color:var(--line2);color:var(--fg)}
+.btn-ghost:hover{border-color:#4d4d4d}
+.nav{position:sticky;top:0;z-index:20;background:rgba(10,10,10,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:0;height:60px}
+.brand{display:inline-flex;align-items:center;gap:10px;flex:none;font:600 17px/1 var(--sans);letter-spacing:-.01em;text-decoration:none}
+.mark{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;border-radius:6px;background:var(--accent-ui);color:#fff}
+.mark svg{display:block;width:16px;height:16px}
+.desc{margin-left:14px;padding-left:14px;border-left:1px solid var(--line2);font-size:14px;line-height:16px;color:var(--fg3);white-space:nowrap}
+.links{display:flex;gap:28px;margin:0 0 0 auto;font-size:14px;font-weight:500;color:#d4d4d4}
+.links a{text-decoration:none}
+.links a:hover{color:var(--fg)}
+.nav .btn{height:34px;margin-left:40px;padding:0 14px;font-size:14px}
+@media (max-width:900px){
+.nav .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto auto;row-gap:2px;align-content:center}
+.brand{grid-column:1;grid-row:1}
+.desc{grid-column:1;grid-row:2;margin:0;padding:0 0 0 34px;border:0;font-size:12.5px}
+.links{grid-column:2;grid-row:1/span 2}
+.nav .btn{grid-column:3;grid-row:1/span 2}
+}
+@media (max-width:760px){
+.links{display:none}
+.nav .btn{margin-left:12px}
+}
+.hero{position:relative;padding:clamp(48px,8vw,104px) 0 clamp(56px,8vw,96px)}
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);gap:clamp(32px,5vw,64px);align-items:start}
+h1{margin:0;font:620 clamp(36px,4.4vw,51px)/1.12 var(--sans);letter-spacing:-.035em;text-wrap:balance}
+.lede{margin:24px 0 0;max-width:33em;font-size:clamp(17px,1.45vw,19px);line-height:1.7;color:var(--fg2);text-wrap:pretty}
+.lede>span{display:block}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.term{margin:0;background:#0d0e10;border:1px solid var(--line2);border-radius:12px;overflow:hidden}
+.term-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:12px;color:var(--fg3)}
+.term-app{font-family:var(--mono);color:var(--fg2)}
+.replay{margin-left:auto;appearance:none;background:none;border:1px solid var(--line2);border-radius:6px;padding:4px 10px;font:500 12px/1 var(--sans);color:var(--fg2);cursor:pointer;white-space:nowrap}
+.replay:hover{color:var(--fg);border-color:#4d4d4d}
+.term-body{list-style:none;margin:0;padding:18px 18px 20px;display:grid;gap:9px;font:400 12.5px/1.6 var(--mono);color:var(--fg2)}
+.term-body li{position:relative;padding-left:18px}
+.t-q,.t-ans,.t-call{overflow-wrap:anywhere}
+.t-q{color:var(--fg);font:400 14px/1.6 var(--sans);padding-bottom:6px}
+.t-q::before{content:">";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}
+.t-call::before{content:"";position:absolute;left:3px;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.t-call code{color:var(--accent);font-weight:500;margin-right:8px}
+.t-res{display:inline;margin-left:4px;color:var(--fg3)}
+.t-read{color:var(--fg)}
+.t-res b{font-weight:500;color:var(--fg);margin-right:8px}
+.t-ans{margin-top:4px;padding-top:12px;border-top:1px solid var(--line);color:var(--fg);font:400 14px/1.65 var(--sans)}
+.t-ans::before{content:"";position:absolute;left:3px;top:1.25em;width:7px;height:7px;border-radius:50%;background:var(--fg)}
+.t-src{display:flex;flex-wrap:wrap;gap:6px}
+.t-src span{padding:3px 8px;border:1px solid var(--line2);border-radius:6px;font-size:11.5px;color:var(--fg2)}
+.t-src em{font-style:normal;margin-left:6px;color:var(--fg3)}
+.term-body.play>li{animation:tin .45s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*230ms)}
+@keyframes tin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.sec{padding:clamp(72px,10vw,120px) 0;border-top:1px solid var(--line)}
+.sec-head h2{margin:0;font:600 clamp(28px,3.2vw,40px)/1.2 var(--sans);letter-spacing:-.03em;text-wrap:balance}
+.sec-head p{margin:14px 0 0;max-width:40em;color:var(--fg2)}
+.sec-head p+p{margin-top:6px}
+.pain{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:40px}
+.pain-item{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;margin:0;padding:24px 24px 20px;background:var(--panel);border:1px solid var(--line2);border-radius:12px}
+.pain-q{margin:0;font:600 clamp(21px,2.1vw,26px)/1.35 var(--sans);letter-spacing:-.02em}
+.pain-was{margin:12px 0 28px;color:var(--fg2);text-wrap:pretty}
+.pain-fix{display:flex;flex-direction:column;gap:2px;margin:0;padding-top:16px;border-top:1px solid var(--line);font-size:17px;color:var(--fg)}
+.pain-by{font-size:14px;font-weight:600;color:var(--accent)}
+@media (max-width:760px){
+.pain{grid-template-columns:minmax(0,1fr)}
+}
+@media (min-width:1024px){
+.pain:has(>:nth-child(3)){grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (min-width:761px) and (max-width:1023px){
+.pain-item:nth-child(3):last-child{grid-column:1/-1}
+}
+.tools{list-style:none;margin:40px 0 0;padding:0;max-width:720px;border-top:1px solid var(--line)}
+.tool{padding:22px 0;border-bottom:1px solid var(--line)}
+.tool-name{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;font:600 19px/1.45 var(--sans);letter-spacing:-.01em}
+.tool-name code{font:500 14px/1.45 var(--mono);color:var(--accent)}
+.tool-desc{margin:8px 0 0;color:var(--fg2);text-wrap:pretty}
+.tool .viz{margin-top:16px}
+.viz{min-width:0;margin:0;padding:20px 22px;background:var(--panel);border:1px solid var(--line2);border-radius:12px;font:400 13px/1.65 var(--mono);color:var(--fg2)}
+.viz-tag{margin:0 0 14px;font:500 13px/1 var(--mono);color:var(--accent)}
+.v-card{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 18px}
+.v-card dt{color:var(--fg3)}
+.v-card dd{margin:0;color:var(--fg);overflow-wrap:anywhere}
+.v-card dd:last-of-type{color:var(--accent)}
+.stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.stat{margin:0;padding:40px 0 34px 28px;border-left:1px solid var(--line)}
+.stat:first-child{padding-left:0;border-left:0}
+.stat strong{display:block;font:500 clamp(36px,4.4vw,58px)/1 var(--sans);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stat span{display:block;margin-top:12px;font-size:17px;font-weight:500;color:var(--fg)}
+.source{margin:0;padding:6px 0 44px;max-width:56em;font-size:14px;color:var(--fg3)}
+.log{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:20px 22px;background:var(--panel);border:1px solid var(--line2);border-radius:12px}
+.log p,.s-src li{margin:0;overflow-wrap:anywhere}
+.s-q{justify-self:end;max-width:92%;padding:10px 14px;background:var(--chip);border:1px solid var(--line2);border-radius:12px 12px 4px 12px;font-size:15px;color:var(--fg)}
+.s-a{font-size:15px;color:var(--fg)}
+.s-src{display:flex;gap:12px;font-size:13px;color:var(--fg2)}
+.s-src .lbl{flex:none;color:var(--fg3)}
+.s-src ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.s-src em{font-style:normal;margin-left:6px;font:400 12px/1 var(--mono);color:var(--fg3)}
+.cmd{position:relative;margin-top:40px;max-width:720px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line)}
+.tabs [role=tab]{appearance:none;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:10px 12px;font:500 14px/1 var(--sans);color:var(--fg3);cursor:pointer}
+.tabs [role=tab][aria-selected=true]{color:var(--fg);border-bottom-color:var(--fg)}
+.code{display:flex;align-items:stretch;background:var(--panel);border:1px solid var(--line2);border-top:0;border-radius:0 0 12px 12px}
+.code pre{flex:1;min-width:0;margin:0;padding:14px 16px;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13.5px;line-height:1.6;color:var(--fg)}
+.code pre[data-shell] code::before{content:"$ ";color:var(--accent)}
+.nw{white-space:nowrap}
+.copy{position:absolute;top:8px;right:12px;appearance:none;background:none;border:1px solid #4a4a4a;border-radius:6px;padding:4px 10px;font:500 12px/1 var(--sans);color:#c2c2c2;cursor:pointer;white-space:nowrap}
+.copy:hover{color:#fff;border-color:#6e6e6e}
+.copy::after{content:"";position:absolute;inset:-11px -6px}
+.note{margin:10px 0 0;font-size:14px;color:var(--fg3)}
+.note code{font-size:13px;color:var(--fg2)}
+.ask-card{max-width:520px;margin:40px 0 0;padding:24px;background:var(--panel);border:1px solid var(--line2);border-radius:12px}
+.ask-card dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 28px}
+.ask-card dt{color:var(--fg3)}
+.ask-card dd{margin:0;overflow-wrap:anywhere}
+.ask-card .btn{width:100%;margin-top:24px}
+@media (max-width:640px){
+.ask-card dl{grid-template-columns:minmax(0,1fr);gap:2px}
+.ask-card dd{margin-bottom:12px}
+}
+footer{border-top:1px solid var(--line);padding:28px 0 120px;font-size:14px;color:var(--fg3)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px}
+footer a{text-decoration:none}
+@media (prefers-reduced-motion:reduce){
+html{scroll-behavior:auto}
+.term-body.play>li{animation:none}
+.replay{display:none}
+}
+@media (max-width:1100px){
+.hero-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (min-width:1101px){
+.hero-grid>div:first-child{padding-top:55px}
+}
+@media (max-width:640px){
+.stats-row{grid-template-columns:minmax(0,1fr)}
+.stat{padding:22px 0;border-left:0;border-top:1px solid var(--line)}
+.stat:first-child{border-top:0}
+}
+@media print{
+.nav{display:none}
+}
+.pain-lbl{display:block;margin-bottom:2px;font-size:13px;font-weight:600;color:var(--fg3)}
+.sec-stats .stats-row{margin-top:40px;border-top:1px solid var(--line)}
+.stat small{display:block;margin-top:6px;font-size:14px;line-height:1.5;color:var(--fg3)}
+.sec-stats .source{padding-bottom:0}
+.dlg{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;align-items:start;padding:32px 0;border-bottom:1px solid var(--line)}
+.dlg:first-of-type{margin-top:40px;border-top:1px solid var(--line)}
+.dlg-area{margin:0;padding-top:10px;font:600 14px/1.4 var(--sans);color:var(--accent)}
+.dlg .s-a{max-width:40em}
+@media (max-width:900px){
+.dlg{grid-template-columns:minmax(0,1fr);gap:12px}
+.dlg-area{padding-top:0}
+}
+.spec{margin:0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 18px}
+.spec dt{font-weight:500;color:var(--fg2)}
+.spec dd{margin:0;color:var(--fg2)}
+.faq{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 48px;margin:40px 0 0}
+.faq>div{padding:18px 0;border-top:1px solid var(--line)}
+.faq dt{font-weight:600;color:var(--fg)}
+.faq dd{margin:6px 0 0;color:var(--fg2)}
+@media (max-width:760px){
+.faq{grid-template-columns:minmax(0,1fr)}
+}
+.steps{list-style:none;margin:40px 0 0;padding:0;max-width:720px;counter-reset:step}
+.steps>li{position:relative;padding:0 0 32px 52px;counter-increment:step}
+.steps>li:last-child{padding-bottom:0}
+.steps>li::before{content:counter(step);position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font:600 14px/1 var(--mono);color:var(--accent)}
+.steps>li:not(:last-child)::after{content:"";position:absolute;left:16px;top:40px;bottom:8px;width:1px;background:var(--line2)}
+.step-name{margin:3px 0 0;font:600 19px/1.4 var(--sans)}
+.step-name a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+.step-name a:hover{color:var(--accent)}
+.steps p{margin:6px 0 0;color:var(--fg2)}
+.steps .cmd{margin-top:20px}
+@media (max-width:640px){
+.steps .cmd{margin-left:-52px}
+}
+.term-short .term-body{grid-template-columns:minmax(0,1fr);gap:7px}
+.term-short .t-call{display:flex;align-items:baseline;gap:0;white-space:nowrap}
+.term-short .t-call code{flex:none}
+.term-short .t-arg{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.term-short .t-res{flex:none;margin-left:8px}
+.term-short .t-hide{display:none}
+.term-short.open .t-hide{display:flex;animation:none}
+.term-short .t-more .less,.term-short.open .t-more .more{display:none}
+.term-short.open .t-more .less{display:inline-block}
+.t-more{padding-left:18px}
+.t-more button{appearance:none;border:0;background:none;padding:4px 0;font:inherit;color:var(--fg2);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.t-more button:hover{color:var(--fg)}
+.t-more::before{content:"";position:absolute;left:3px;top:.62em;width:7px;height:7px;border-radius:50%;border:1px solid var(--fg3)}
+.pain-q{text-wrap:balance}
+@media (max-width:900px){
+.nav .wrap{position:relative}
+.nav .brand,.nav .desc{padding-left:42px}
+.nav .mark{position:absolute;left:var(--pad);top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:8px}
+.nav .mark svg{width:20px;height:20px}
+}
+.tool:last-child{border-bottom:0;padding-bottom:0}
+.dlg:last-of-type{border-bottom:0;padding-bottom:0}
+.hero{padding:clamp(24px,5vw,72px) 0 clamp(48px,7vw,96px)}
+.sec{padding:clamp(48px,7vw,96px) 0;border-top-color:var(--line2)}
+.pain-lbl{font-size:14px;color:var(--fg);margin-bottom:4px}
+.nav .btn{transition:opacity .2s,visibility .2s}
+.nav.cta-off .btn{opacity:0;visibility:hidden}
+@media (max-width:640px){
+.term-short .t-call{flex-wrap:wrap;white-space:normal}
+.term-short .t-arg{order:3;flex:1 0 100%;white-space:nowrap}
+}
+@media (max-width:640px){
+.code{flex-direction:column}
+.copy{position:relative;top:auto;right:auto;height:44px;padding:0 16px;border:0;border-top:1px solid var(--line2);border-radius:0;font:500 13px/1 var(--sans);color:var(--fg2)}
+.copy::after{content:none}
+.code pre:not([data-shell]){white-space:pre;overflow-wrap:normal}
+.code pre[data-shell] code{display:block;padding-left:2ch;text-indent:-2ch}
+}
+.steps p,.s-a,.pain-fix>span,.sec-head p,.t-q,.t-ans,.note,.stat small,.spec dd{text-wrap:pretty}
+@media (pointer:coarse){
+.replay,.t-more button,.step-name a,footer a{position:relative}
+.replay::after,.t-more button::after,.step-name a::after,footer a::after{content:"";position:absolute;inset:-11px -6px}
+.tabs [role=tab]{padding:15px 14px}
+.nav .btn{height:40px}
+}
+.spec dt{font-weight:400;color:var(--fg3)}
+.spec dd{color:var(--fg)}
+:root{--panel:#181818}
+.pain-item,.viz,.ask-card,.code{border-color:#3a3a3a}
+.tabs{border-bottom-color:#3a3a3a}
+footer{padding:28px 0 calc(28px + env(safe-area-inset-bottom))}
+.term,.log{background:#1e1e1e;border:1px solid #3a3a3a;border-radius:10px}
+.term-bar{background:#262626;border-bottom:1px solid #333;color:#b3b3b3}
+.term-app{color:#d4d4d4}
+.term-bar::before{content:"";flex:none;width:9px;height:9px;margin-right:30px;border-radius:50%;background:#ff5f57;box-shadow:15px 0 0 #febc2e,30px 0 0 #28c840}
+.term-body .t-status{margin-top:6px;color:#949494}
+.t-status::before{content:"✻";position:absolute;left:0;color:#949494}
+.t-status .t-work{display:none;color:#d78787}
+.term.working .t-status .t-work{display:inline}
+.term.working .t-status .t-done{display:none}
+.term.working .t-status::before{color:#d78787;animation:tspin 1.2s steps(1) infinite}
+.term-short .term-body>.t-wait{display:none}
+.term-short .term-body{display:flex;flex-direction:column;justify-content:flex-end}
+.pain-item{padding:24px}
+.pain-q{font-size:clamp(19px,1.8vw,22px)}
+.pain-was{margin:14px 0 22px;font-size:16px;line-height:1.6;color:var(--fg2)}
+.pain-lbl{display:inline;margin:0 8px 0 0;font-size:16px;font-weight:700;color:var(--fg)}
+.pain-fix{display:block;padding-top:18px;border-top:1px solid #333;font-size:clamp(19px,1.7vw,21px);line-height:1.5;font-weight:600;color:var(--fg)}
+.pain-by{display:block;margin-bottom:6px;font-size:16px;font-weight:700;color:var(--accent)}
+.term-short .t-input{min-height:1.6em;margin:6px -16px -18px;padding:8px 16px 10px calc(2ch + 16px);border-top:1px solid #3a3a3a;color:#fff}
+.term-short .t-input::after{content:"";display:inline-block;width:.55em;height:1.1em;margin-left:1px;vertical-align:-.15em;background:#c2c2c2;animation:tcaret 1s steps(1) infinite}
+@keyframes tcaret{50%{opacity:0}}
+.term.typing .t-status{visibility:hidden}
+.term-short .t-input::before{content:"❯";position:absolute;left:16px;top:8px;color:#949494}
+.term-body.reveal>li{animation:tin .35s cubic-bezier(.2,.7,.2,1) both}
+@keyframes tspin{0%{content:"·"}16%{content:"✢"}33%{content:"✳"}50%{content:"✶"}66%{content:"✻"}83%{content:"✽"}}
+.term-bar .replay{color:#c2c2c2;border-color:#4a4a4a}
+.term-bar .replay:hover{color:#fff;border-color:#6e6e6e}
+.term-body{padding:16px 16px 18px;gap:4px;font:400 13px/1.6 var(--mono);color:#d4d4d4}
+.term-body li{padding-left:2ch}
+.term-body .t-q{margin:0 0 8px;padding:6px 10px 6px calc(2.6ch + 10px);background:#3d3d3d;border-radius:4px;color:#fff;font:400 13.5px/1.6 var(--mono)}
+.term-body .t-q::before{content:"❯";left:10px;top:6px;color:#949494}
+@media (min-width:1101px){
+.term-short{margin-top:-4px}
+}
+.t-call::before,.t-ans::before{content:"●";left:0;top:0;width:auto;height:auto;border-radius:0;background:none;font:400 13px/1.6 var(--mono)}
+.t-call::before{color:#87d787}
+.t-ans::before{color:#fff}
+.t-call code{color:#fff;font-weight:700;margin-right:0}
+.t-call code::before{content:"tc-knowledge - ";font-weight:400}
+.t-call code::after{content:" (MCP)";font-weight:400;color:#949494}
+.t-arg::before{content:"("}
+.t-arg::after{content:")"}
+.t-read{color:#d4d4d4}
+.term-short .t-call,.term-short.open .t-hide{display:grid;grid-template-columns:auto minmax(0,1fr);white-space:nowrap}
+.term-short .t-arg{overflow:hidden;text-overflow:ellipsis}
+.term-short .t-res{grid-column:1/-1}
+@media (max-width:640px){
+.term-short .t-call,.term-short.open .t-hide{grid-template-columns:minmax(0,1fr)}
+}
+.term-short .t-hide{display:none}
+.term-short .t-res,.t-res{flex:1 0 100%;display:block;margin:0;color:#949494}
+.t-res::before{content:"⎿  ";color:#949494}
+.t-res b{font-weight:400;color:#949494}
+.t-more{padding-left:2ch}
+.t-more::before{content:"";border:0}
+.t-more button{color:#949494;font-weight:700;text-decoration:none}
+.t-ans{margin-top:8px;padding-top:0;border-top:0;color:#fff;font:400 13.5px/1.65 var(--mono)}
+.t-src{margin-top:2px}
+.t-src span{border-color:#3a3a3a;color:#b3b3b3}
+.log{padding:16px 16px 18px;gap:10px;font-family:var(--mono)}
+.s-q{justify-self:stretch;max-width:none;position:relative;padding:6px 10px 6px calc(2.6ch + 10px);background:#3a3a3a;border:0;border-radius:4px;font:400 13.5px/1.6 var(--mono);color:#fff}
+.s-q::before{content:"❯";position:absolute;left:10px;color:#949494}
+.s-a{position:relative;padding-left:2ch;font:400 13.5px/1.65 var(--mono);color:#fff}
+.s-a::before{content:"●";position:absolute;left:0;color:#fff}
+.s-src{padding-left:2ch;font:400 12.5px/1.6 var(--mono);color:#b3b3b3}
+.s-src .lbl{color:#949494}
+.s-src .lbl::before{content:"⎿  "}
+:root{--fg2:#c2c2c2;--fg3:#a3a3a3;--line:#333}
+.pain-item,.viz,.ask-card,.code,.term,.log{border-color:#5e5e5e}
+.tabs{border-bottom-color:#5e5e5e}
+.sec{border-top-color:#333}
+.hero h1,.sec-head h2,.pain-q,.tool-name,.step-name,.brand{font-weight:700}
+.tabs{gap:4px;padding:0 8px;background:#232323;border:1px solid #5e5e5e;border-bottom:1px solid #3a3a3a;border-radius:12px 12px 0 0}
+.tabs [role=tab]{color:#b3b3b3}
+.tabs [role=tab]:hover{color:#fff}
+.tabs [role=tab][aria-selected=true]{color:#fff;border-bottom-color:#fff}
+.code{border-top:0}
+.pain:has(>:nth-child(4)){grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:760px){
+.pain:has(>:nth-child(4)){grid-template-columns:minmax(0,1fr)}
+}
+.shot{margin:16px 0 0;max-width:720px}
+.shot img{display:block;width:100%;height:auto;border:1px solid #5e5e5e;border-radius:12px;background:#111}
+.shot figcaption{margin-top:8px;font-size:14px;color:var(--fg3)}
+.kvbox{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 20px;margin:0;padding:14px 16px;font-size:13.5px;line-height:1.6}
+.kvbox dt{color:var(--fg3)}
+.kvbox dd{margin:0;color:var(--fg);font-family:var(--mono);overflow-wrap:anywhere}
+.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:40px}
+@media (max-width:760px){
+.admin-grid{grid-template-columns:minmax(0,1fr)}
+}
+.admin-item{display:flex;flex-direction:column;margin:0;padding:24px;background:var(--panel);border:1px solid #5e5e5e;border-radius:12px}
+.admin-item h3{margin:0;font:700 clamp(19px,1.8vw,22px)/1.35 var(--sans);letter-spacing:-.02em}
+.admin-item p{margin:10px 0 0;color:var(--fg2);text-wrap:pretty}
+.admin-item .shot{order:-1;margin:0 0 20px;padding-top:0;max-width:none}
+@media (min-width:761px){
+.admin-item .shot img{aspect-ratio:1024/348;object-fit:contain;object-position:top left;background:#000}
+}
+.custom-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:40px}
+@media (max-width:1023px){
+.custom-grid{grid-template-columns:minmax(0,1fr)}
+}
+.custom-item{margin:0;padding:24px;background:var(--panel);border:1px solid #5e5e5e;border-radius:12px}
+.custom-item h3{margin:0;font:700 clamp(19px,1.8vw,22px)/1.35 var(--sans);letter-spacing:-.02em}
+.custom-item p{margin:10px 0 0;color:var(--fg2);text-wrap:pretty}
+.spec-box{margin-top:16px;padding:16px 20px;max-width:420px;background:var(--panel);border:1px solid #3a3a3a;border-radius:12px}
+.steps .spec-title{margin:0 0 10px;font-weight:600;color:var(--fg)}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></span><span>tc-knowledge</span></a>
+    <span class="desc">Teamcenter 문서 MCP 서버</span>
+    <nav class="links" aria-label="페이지 섹션">
+      <a href="#how">작동 방식</a>
+      <a href="#examples">사용 예시</a>
+      <a href="#custom">맞춤 제작</a><a href="#connect">도입 순서</a>
+    </nav>
+    <a class="btn btn-primary" href="#contact">도입 문의</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>AI agent에<br>Teamcenter 공식&nbsp;문서를<br>연결합니다.</h1>
+        <p class="lede"><span>질문하면 AI agent가 문서를 직접 검색해서 알려줍니다.</span><span>문서는 영어지만 질문은 한국어로 해도 됩니다.</span></p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#contact">도입 문의</a>
+          <a class="btn btn-ghost" href="#examples">사용 예시</a>
+        </div>
+      </div>
+
+      <figure class="term term-short">
+        <div class="term-bar"><span class="term-app">Claude Code</span><button type="button" class="replay">다시 보기</button></div>
+        <ol class="term-body play">
+          <li class="t-q" style="--i:0">우리 Active Workspace 모듈에 Issue 추가 command를 새로 만들어 줘. toolbar 순서는 priority 10, Issues sublocation에서만 보이게 해 줘.</li>
+          <li class="t-call" style="--i:1"><code>tc_search_docs</code><span class="t-arg">Active Workspace 새 command 추가, toolbar priority, sublocation에서만 보이기 …</span><span class="t-res"><b>결과 10개</b></span></li>
+          <li class="t-call t-read" style="--i:2"><code>tc_fetch_section</code><span class="t-arg">Getting started &gt; Configuring command placement</span></li>
+          <li class="t-call t-read t-hide" style="--i:3"><code>tc_fetch_section</code><span class="t-arg">Getting started &gt; Configuring an action to be executed via a handler</span></li>
+          <li class="t-call t-hide" style="--i:3"><code>tc_search_docs</code><span class="t-arg">Getting started addIssueCmd commands section iconId title …</span><span class="t-res"><b>결과 8개</b></span></li>
+          <li class="t-call t-read t-hide" style="--i:3"><code>tc_fetch_section</code><span class="t-arg">Getting started &gt; Specifying the command title and icon</span></li>
+          <li class="t-call t-read t-hide" style="--i:3"><code>tc_fetch_section</code><span class="t-arg">Configuring command placement, visibility, and action &gt; Managing visibility of the command</span></li>
+          <li class="t-call t-hide" style="--i:3"><code>tc_search_docs</code><span class="t-arg">condition expression check current sublocation …</span><span class="t-res"><b>결과 8개</b></span></li>
+          <li class="t-call t-read t-hide" style="--i:3"><code>tc_fetch_section</code><span class="t-arg">AppCtx &gt; Properties</span></li>
+          <li class="t-more" style="--i:3"><button type="button" class="more" aria-expanded="false">도구 호출 6번 더 보기</button><button type="button" class="less" aria-expanded="true">접기</button></li>
+          <li class="t-ans" style="--i:4">Teamcenter 문서의 Getting started 예제가 바로 이 구성입니다(addIssueCmd, aw_workarea_toolbar, priority 10). 그 예제를 기준으로 commandsViewModel.json에 넣을 항목을 준비했습니다. 문서에 식이 없는 sublocation 조건은 ctx.sublocation.nameToken으로 만들고 확인하지 않았다고 표시했습니다.</li>
+          <li class="t-src" style="--i:5"><span>Getting started &gt; Configuring command placement</span><span>AppCtx &gt; Properties</span></li>
+          <li class="t-status" style="--i:0"><span class="t-work">Wrangling…</span><span class="t-done">Worked for 42s</span></li>
+          <li class="t-input" style="--i:0" aria-hidden="true"></li>
+        </ol>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec" id="pain" aria-labelledby="pain-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="pain-title">Teamcenter 개발자가 자주 부딪히는 문제들</h2></div>
+      <div class="pain">
+        <article class="pain-item">
+          <h3 class="pain-q">이 메서드는 어느 class에 있지?</h3>
+          <p class="pain-was"><span class="pain-lbl">지금은</span><span>Services API 문서에서 class 페이지를 하나씩 열고 메서드 목록을 확인합니다.</span></p>
+          <p class="pain-fix"><span class="pain-by">tc-knowledge를 연결하면</span><span>AI agent가 메서드 이름을 조회해서 class를 찾습니다.</span></p>
+        </article>
+        <article class="pain-item">
+          <h3 class="pain-q">이 설정은 어느 설명서에 있지?</h3>
+          <p class="pain-was"><span class="pain-lbl">지금은</span><span>Support Center에 로그인해서 키워드로 검색하고 나온 문서를 하나씩 읽으며 설정을 찾습니다.</span></p>
+          <p class="pain-fix"><span class="pain-by">tc-knowledge를 연결하면</span><span>AI agent가 질문과 뜻이 가까운 섹션을 찾아서 본문까지 읽고 알려줍니다.</span></p>
+        </article>
+        <article class="pain-item">
+          <h3 class="pain-q">AI가 짜 준 코드, 공식 문서대로일까?</h3>
+          <p class="pain-was"><span class="pain-lbl">지금은</span><span>문서를 다시 찾아서 코드와 하나씩 대조합니다.</span></p>
+          <p class="pain-fix"><span class="pain-by">tc-knowledge를 연결하면</span><span>검색 결과마다 원문 링크가 붙어 있습니다.</span></p>
+        </article>
+        <article class="pain-item">
+          <h3 class="pain-q">이 동작을 정하는 preference가 뭐였지?</h3>
+          <p class="pain-was"><span class="pain-lbl">지금은</span><span>기능 설명에서 preference 이름을 찾은 뒤 그 이름으로 다시 검색해서 기본값을 확인합니다.</span></p>
+          <p class="pain-fix"><span class="pain-by">tc-knowledge를 연결하면</span><span>AI agent가 preference 정의 페이지를 찾아서 이름과 기본값을 함께 알려줍니다.</span></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="how-title">AI agent가 문서를 검색해서 읽는 방법</h2><p>AI agent는 도구 3개로 문서를 검색하고 본문과 API 이름을 조회합니다.</p><p>섹션 검색에는 Teamcenter 문서로 추가 학습한 검색 모델을 사용합니다.</p></div>
+      <ul class="tools">
+        <li class="tool"><h3 class="tool-name"><span>섹션 검색</span><code>tc_search_docs</code></h3><p class="tool-desc">질문과 뜻이 가까운 섹션을 찾고 결과마다 원문 링크를 붙입니다.</p>
+          <figure class="viz">
+            <p class="viz-tag"><code>tc_search_docs</code></p>
+            <dl class="v-card">
+              <dt>title</dt><dd>Deployment Center ─ Usage</dd>
+              <dt>heading_path</dt><dd>Run the deployment scripts</dd>
+              <dt>source_url</dt><dd>https://docs.sw.siemens.com/<wbr><span class="nw">en-US</span>/doc/<wbr>282219420/…/<wbr>xid1162555</dd>
+            </dl>
+          </figure>
+        </li>
+        <li class="tool"><h3 class="tool-name"><span>본문 읽기</span><code>tc_fetch_section</code></h3><p class="tool-desc">찾은 섹션은 본문이 길어도 끝까지 가져옵니다.</p></li>
+        <li class="tool"><h3 class="tool-name"><span>API 이름 확인</span><code>tc_lookup_symbol</code></h3><p class="tool-desc">코드에 넣기 전에 이름이 API reference에 실제로 있는지 확인하고 시그니처를 가져옵니다.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec sec-stats" id="stats" aria-labelledby="stats-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="stats-title">하나의 패키지에 들어있는 문서</h2></div>
+      <div class="stats-row">
+        <p class="stat"><strong>92,421</strong><span>문서</span><small>설명서 페이지 21,731개, API reference 페이지 57,520개(ITK, C++ API, Services API), 환경설정 정의 페이지 13,157개, PDF 13개</small></p>
+        <p class="stat"><strong>409,351</strong><span>섹션</span><small>검색 결과가 나오는 단위</small></p>
+        <p class="stat"><strong>284,504</strong><span>API 이름</span><small>class, 함수, 메서드 이름</small></p>
+      </div>
+      <p class="source">*Teamcenter 2412 공식 문서 기준입니다.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="examples" aria-labelledby="examples-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="examples-title">질문과 답 예시</h2></div>
+      <article class="dlg">
+        <p class="dlg-area">Active Workspace</p>
+        <div class="log">
+          <p class="s-q">AW 테이블에 커스텀 속성을 컬럼으로 추가하려면 어디를 고쳐야 돼?</p>
+          <p class="s-a">XRT의 objectSet 테이블이면 objectSet에 property로 속성을 추가합니다. 검색 결과처럼 primary work area에 나오는 테이블이면 column configuration에 ColumnDef를 추가합니다. 고친 구성은 import_uiconfig로 다시 등록합니다.</p>
+          <div class="s-src"><span class="lbl">근거</span><ul><li>Active Workspace Customization &gt; Configuring columns using objectSet properties</li><li>Active Workspace Customization &gt; Using the command line to manage your column configurations</li></ul></div>
+        </div>
+      </article>
+      <article class="dlg">
+        <p class="dlg-area">SBL C#</p>
+        <div class="log">
+          <p class="s-q">SBL C#에서 Item 속성 값을 바꿀 때 형식 체크를 넣고 싶은데 어떻게 해?</p>
+          <p class="s-a">그 속성의 setter에 PreCondition 확장을 C# 메서드로 붙입니다. 메서드에 PropertySetterPreCondition attribute를 달고 파라미터로 속성 이름을 넣습니다. PreAction과 PostAction도 같은 방식으로 붙입니다.</p>
+          <div class="s-src"><span class="lbl">근거</span><ul><li>Teamcenter Server Customization in C# - Reference Scripted customization &gt; How to add custom extensions to a string property</li><li>Teamcenter Server Customization in C# - Reference Scripted customization &gt; Property setter extensions</li></ul></div>
+        </div>
+      </article>
+      <article class="dlg">
+        <p class="dlg-area">ITK</p>
+        <div class="log">
+          <p class="s-q">ITK로 BOM을 펼쳐서 하위 부품 목록을 읽는 C 코드 예제 있어?</p>
+          <p class="s-a">BOM_create_window로 window를 생성하고 BOM_set_window_top_line으로 top line을 정합니다. 하위 line은 BOM_line_ask_child_lines를 재귀로 호출해서 읽습니다. 예제 소스는 TC_ROOT/sample/pse에 있습니다.</p>
+          <div class="s-src"><span class="lbl">근거</span><ul><li>ITK Function Reference: Bill Of Materials (BOM) &gt; BOM_line_ask_child_lines</li><li>Teamcenter Server Customization &gt; Sample BOM programs</li></ul></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" id="admin" aria-labelledby="admin-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="admin-title">token 발급과 사용&nbsp;분석을 한 화면에서 관리</h2></div>
+      <div class="admin-grid">
+        <article class="admin-item">
+          <h3>token 발급</h3>
+          <p>개인별로 token 발급 및 폐기 기능 지원</p>
+          <figure class="shot"><img src="img/admin-token.png" width="898" height="283" alt="관리 화면의 token 발급 탭" loading="lazy" decoding="async"></figure>
+        </article>
+        <article class="admin-item">
+          <h3>사용 분석</h3>
+          <p>기간별로 검색 건수와 자주 찾는 문서, 답을 못 찾은 검색을 확인합니다. 이 숫자로 도입 효과와 개선할 부분을 파악합니다.</p>
+          <figure class="shot"><img src="img/admin-analytics.png" width="1024" height="348" alt="사용 분석 탭의 일별 사용자 수와 일별 도구 호출 분포 차트(예시 데이터)" loading="lazy" decoding="async"></figure>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="custom" aria-labelledby="custom-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="custom-title">프로젝트 맞춤 제작</h2><p>각자 프로젝트 상황에 맞춰 패키지를 구성할 수 있습니다. 필요한 버전과 문서만 담아 제작해 드립니다.</p></div>
+      <div class="custom-grid">
+        <article class="custom-item"><h3>Teamcenter 버전</h3><p>프로젝트에서 사용하는 Teamcenter 버전의 공식 문서로 패키지를 제작합니다.</p></article>
+        <article class="custom-item"><h3>모듈과 문서 범위</h3><p>Schedule Manager, Classification처럼 Teamcenter에 설치한 모듈에 맞춰 필요한 설명서만 담습니다.</p></article>
+        <article class="custom-item"><h3>전달 방식</h3><p>완성한 패키지는 docker 이미지와 설치 가이드로 전달합니다. 사내 서버 1대에 설치해서 전체 팀원이 같이 사용할 수 있습니다.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="connect" aria-labelledby="connect-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="connect-title">도입 순서</h2></div>
+      <ol class="steps">
+        <li><h3 class="step-name"><a href="#contact">도입 문의</a></h3><p>아래 도입 문의로 연락하면 담당자가 docker 이미지와 설치 가이드를 직접 전달합니다.</p></li>
+        <li><h3 class="step-name">사내 서버에 설치</h3><p>가이드대로 사내 서버에 설치합니다.</p><div class="spec-box"><p class="spec-title">서버 필요 사양</p><dl class="spec"><dt>OS</dt><dd>Linux 권장</dd><dt>CPU</dt><dd>x86-64 4코어 이상</dd><dt>메모리</dt><dd>32GB 이상</dd><dt>디스크</dt><dd>150GB 이상</dd><dt>GPU</dt><dd>불필요</dd><dt>소프트웨어</dt><dd>Docker</dd></dl></div></li>
+        <li><h3 class="step-name">token 발급</h3><p>설치한 서버의 관리 화면에서 token을 발급합니다.</p></li>
+        <li><h3 class="step-name">AI agent에 연결</h3><p>MCP를 지원하는 AI agent라면 설치한 서버 주소와 발급한 token으로 연결합니다. 아래는 Claude&nbsp;Code, OpenCode, Open WebUI 예시입니다.</p>
+            <div class="cmd">
+              <div class="tabs" role="tablist" aria-label="연결할 클라이언트">
+                <button type="button" role="tab" id="tab-cc" aria-controls="pan-cc" aria-selected="true">Claude Code</button>
+                <button type="button" role="tab" id="tab-oc" aria-controls="pan-oc" aria-selected="false" tabindex="-1">OpenCode</button>
+                <button type="button" role="tab" id="tab-ow" aria-controls="pan-ow" aria-selected="false" tabindex="-1">Open WebUI</button>
+              </div>
+              <div class="pane" role="tabpanel" id="pan-cc" aria-labelledby="tab-cc">
+                <div class="code"><pre data-shell><code>claude mcp add <span class="nw">--transport http</span> <span class="nw">--scope user</span> <span class="nw">tc-knowledge</span> <span class="nw">http://&lt;서버&gt;:8765/mcp</span> <span class="nw">--header</span> 'Authorization: Bearer ${TCK_TOKEN}'</code></pre><button type="button" class="copy">복사</button></div>
+              </div>
+              <div class="pane" role="tabpanel" id="pan-oc" aria-labelledby="tab-oc" hidden>
+                <div class="code"><pre><code>{
+  "mcp": {
+    "tc-knowledge": {
+      "type": "remote",
+      "url": "<span class="nw">http://&lt;서버&gt;:8765/mcp</span>",
+      "oauth": false,
+      "headers": { "Authorization": "Bearer {env:TCK_TOKEN}" }
+    }
+  }
+}</code></pre><button type="button" class="copy">복사</button></div>
+              </div>
+              <div class="pane" role="tabpanel" id="pan-ow" aria-labelledby="tab-ow" hidden>
+                <div class="code"><dl class="kvbox"><dt>위치</dt><dd>왼쪽 아래 이름 &gt; 설정 &gt; 관리자 구역의 도구 &gt; 통합</dd><dt>종류</dt><dd>MCP 스트림 가능한 HTTP</dd><dt>URL</dt><dd><span class="nw">http://&lt;서버&gt;:8765/mcp</span></dd><dt>인증</dt><dd>Bearer</dd><dt>API 키</dt><dd>발급한 token</dd><dt>접근</dt><dd>공개 또는 사용할 그룹</dd></dl></div>
+              </div>
+              <p class="note">연동 가능 Agent: Claude&nbsp;Code, Codex&nbsp;CLI, Gemini&nbsp;CLI, OpenCode, Open&nbsp;WebUI 등</p>
+            </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="faq-title">FAQ</h2></div>
+      <dl class="faq">
+        <div><dt>질문이 회사 밖으로 전송되는 거 아닌가요?</dt><dd>tc-knowledge 서버는 질문과 검색 결과를 밖으로 보내지 않습니다. 다만 AI agent가 사용하는 모델 서비스로 무엇을 보내는지는 AI agent의 설정에 따라 다릅니다.</dd></div>
+        <div><dt>인터넷이 안 되는 서버에도 설치할 수 있나요?</dt><dd>네, 가능합니다. 인터넷 접근 없이도 모든 기능을 사용할 수 있습니다.</dd></div>
+        <div><dt>사람마다 token을 따로 받나요?</dt><dd>네. 관리 화면에서 사람마다 본인이 로그인한 계정으로 토큰을 발급합니다.</dd></div>
+        <div><dt>새 버전은 어떻게 올리나요?</dt><dd>설치 가이드를 따라 새 버전의 docker 이미지와 설정 파일을 받아서 교체합니다.</dd></div>
+        <div><dt>검색 모델은 공개 모델을 그대로 사용하나요?</dt><dd>아니요. 공개 한국어 검색 모델을 Teamcenter 문서로 추가 학습해서 사용합니다. 학습 데이터는 문서 섹션을 보고 모델이 만든 예상 질문 약 51만&nbsp;개입니다.</dd></div>
+        <div><dt>GPU가 있어야 하나요?</dt><dd>아니요. GPU가 필요한 학습은 미리 끝냈고 그 모델을 docker 이미지에 넣었습니다. 설치한 서버에서는 CPU로 검색합니다.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec" id="contact" aria-labelledby="contact-title">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="contact-title">도입 문의</h2><p>필요한 Teamcenter 버전과 문서 범위를 알려 주시면 안내해드리겠습니다.</p></div>
+      <div class="ask-grid">
+        <div class="ask-card">
+          <dl>
+            <dt>담당자</dt><dd>Hyunmin Park (DI SW GS AP KR GCO)</dd>
+            <dt>이메일</dt><dd>hyunmin.park@siemens.com</dd>
+          </dl>
+          <a class="btn btn-primary" href="mailto:hyunmin.park@siemens.com">메일 보내기</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><span>tc-knowledge</span><a href="#contact">도입 문의</a></div>
+</footer>
+
+<script>
+(() => {
+  document.querySelectorAll('[role="tablist"]').forEach((list) => {
+    const tabs = [...list.querySelectorAll('[role="tab"]')];
+    const select = (tab) => tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(t));
+      t.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus();
+        select(next);
+      });
+    });
+  });
+  document.querySelectorAll('button.copy').forEach((btn) => {
+    const label = btn.textContent;
+    btn.addEventListener('click', async () => {
+      const text = btn.parentElement.querySelector('pre').innerText;
+      let ok = false;
+      try {
+        await navigator.clipboard.writeText(text);
+        ok = true;
+      } catch (err) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+        ta.remove();
+      }
+      if (ok) {
+        btn.textContent = '복사됨';
+        setTimeout(() => { btn.textContent = label; }, 1600);
+      } else {
+        const range = document.createRange();
+        range.selectNodeContents(btn.parentElement.querySelector('pre'));
+        const s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(range);
+      }
+    });
+  });
+  document.querySelectorAll('.term-short .more').forEach((btn) => btn.addEventListener('click', () => {
+    const term = btn.closest('.term');
+    term.classList.add('open');
+    term.querySelector('.less').focus();
+  }));
+  document.querySelectorAll('.term-short .less').forEach((btn) => btn.addEventListener('click', () => {
+    const term = btn.closest('.term');
+    term.classList.remove('open');
+    term.querySelector('.more').focus();
+  }));
+  const nav = document.querySelector('.nav');
+  const seen = new Set();
+  const io = new IntersectionObserver((es) => {
+    es.forEach((e) => (e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)));
+    nav.classList.toggle('cta-off', seen.size > 0);
+  }, { rootMargin: '-60px 0px 0px 0px' });
+  document.querySelectorAll('.hero .actions, #contact').forEach((t) => io.observe(t));
+  const run = (term) => {
+    const body = term.querySelector('.term-body');
+    const items = [...body.children].filter((li) => !li.classList.contains('t-status') && !li.classList.contains('t-input'));
+    (term.tckTimers || []).forEach(clearTimeout);
+    term.tckTimers = [];
+    body.classList.remove('play', 'reveal');
+    body.style.minHeight = '';
+    items.forEach((li) => li.classList.remove('t-wait'));
+    term.classList.remove('working');
+    const input = body.querySelector('.t-input');
+    if (input) input.textContent = '';
+    term.classList.remove('typing');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    body.style.minHeight = `${body.offsetHeight}px`;
+    void body.offsetWidth;
+    body.classList.add('reveal');
+    const text = items[0].textContent.trim();
+    items[0].classList.add('t-wait');
+    term.classList.add('typing');
+    const step = 18;
+    for (let n = 1; n <= text.length; n += 1) {
+      term.tckTimers.push(setTimeout(() => { if (input) input.textContent = text.slice(0, n); }, n * step));
+    }
+    let t = text.length * step + 350;
+    term.tckTimers.push(setTimeout(() => {
+      if (input) input.textContent = '';
+      items[0].classList.remove('t-wait');
+      term.classList.remove('typing');
+      term.classList.add('working');
+    }, t));
+    items.slice(1).forEach((li) => {
+      if (getComputedStyle(li).display === 'none') return;
+      li.classList.add('t-wait');
+      t += li.classList.contains('t-ans') ? 1100 : 450;
+      term.tckTimers.push(setTimeout(() => li.classList.remove('t-wait'), t));
+    });
+    term.tckTimers.push(setTimeout(() => term.classList.remove('working'), t + 400));
+  };
+  const fit = (term) => {
+    const body = term.querySelector('.term-body');
+    if (!body.style.minHeight) return;
+    const waiting = [...body.querySelectorAll('.t-wait')];
+    const input = body.querySelector('.t-input');
+    const typed = input ? input.textContent : '';
+    if (input) input.textContent = '';
+    waiting.forEach((li) => li.classList.remove('t-wait'));
+    body.style.minHeight = '';
+    body.style.minHeight = `${body.offsetHeight}px`;
+    waiting.forEach((li) => li.classList.add('t-wait'));
+    if (input) input.textContent = typed;
+  };
+  document.querySelectorAll('.term-short').forEach((term) => {
+    run(term);
+    document.fonts.ready.then(() => fit(term));
+  });
+  document.querySelectorAll('.replay').forEach((btn) => btn.addEventListener('click', () => {
+    const term = btn.closest('.term');
+    term.classList.remove('open');
+    run(term);
+  }));
+})();
+</script>
+</body>
+</html>
